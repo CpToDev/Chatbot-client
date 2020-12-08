@@ -35,7 +35,7 @@ function runSample(projectId = 'rn-bot-muwh') {
 			.then((responses) => {
 				const result = responses[0].queryResult;
 				console.log();
-				console.log(`${result.fulfillmentText}`);
+				console.log(`Bot : ${result.fulfillmentText}`);
 				console.log();
 				// if (result.intent) {
 				// 	console.log(`  Intent: ${result.intent.displayName}`);
