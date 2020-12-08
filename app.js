@@ -5,7 +5,7 @@ const uuid = require('uuid');
  * Send a query to the dialogflow agent, and return the query result.
  * @param {string} projectId The project to be used
  */
-async function runSample(projectId = 'rn-bot-muwh') {
+function runSample(projectId = 'rn-bot-muwh') {
 	// A unique identifier for the given session
 	const sessionId = uuid.v4();
 
@@ -15,29 +15,38 @@ async function runSample(projectId = 'rn-bot-muwh') {
 	});
 	const sessionPath = sessionClient.projectAgentSessionPath(projectId, sessionId);
 
-	// The text query request.
-	const request = {
-		session: sessionPath,
-		queryInput: {
-			text: {
-				// The query to send to the dialogflow agent
-				text: 'What is the status of my order ?',
-				// The language used by the client (en-US)
-				languageCode: 'en-US'
+	process.stdin.on('data', (data) => {
+		const query = data.toString();
+		const request = {
+			session: sessionPath,
+			queryInput: {
+				text: {
+					// The query to send to the dialogflow agent
+					text: query,
+					// The language used by the client (en-US)
+					languageCode: 'en-US'
+				}
 			}
-		}
-	};
+		};
 
-	// Send request and log result
-	const responses = await sessionClient.detectIntent(request);
-	console.log('Detected intent');
-	const result = responses[0].queryResult;
-	console.log(`  Query: ${result.queryText}`);
-	console.log(`  Response: ${result.fulfillmentText}`);
-	if (result.intent) {
-		console.log(`  Intent: ${result.intent.displayName}`);
-	} else {
-		console.log(`  No intent matched.`);
-	}
+		// Send request and log result
+		sessionClient
+			.detectIntent(request)
+			.then((responses) => {
+				const result = responses[0].queryResult;
+				console.log();
+				console.log(`${result.fulfillmentText}`);
+				console.log();
+				// if (result.intent) {
+				// 	console.log(`  Intent: ${result.intent.displayName}`);
+				// } else {
+				// 	console.log(`  No intent matched.`);
+				// }
+			})
+			.catch((e) => {
+				console.log('Error connecting to server');
+				process.exit(0);
+			});
+	});
 }
 runSample();
